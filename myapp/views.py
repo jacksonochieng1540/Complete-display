@@ -2,6 +2,7 @@ from django.http import JsonResponse
 from django.shortcuts import render
 from .models import Visitor
 import os
+from django.conf import settings  # Add this import
 
 def home(request):
     # Track visitors
@@ -16,9 +17,7 @@ def home(request):
         'total_visitors': Visitor.objects.count(),
         'your_visits': visitor.visit_count,
         'environment': os.environ.get('ENVIRONMENT', 'development'),
-        'container_id': os.environ.get('HOSTNAME', 'unknown')
+        'container_id': os.environ.get('HOSTNAME', 'unknown'),
+        'debug': settings.DEBUG,  
     }
     return render(request, 'home.html', context)
-
-def health_check(request):
-    return JsonResponse({'status': 'healthy', 'service': 'django-app'})
