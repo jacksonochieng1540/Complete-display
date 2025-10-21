@@ -39,7 +39,6 @@ jobs:
     
     - name: Run migrations
       run: |
-        cd myapp
         python manage.py migrate
       env:
         POSTGRES_DB: mydatabase
