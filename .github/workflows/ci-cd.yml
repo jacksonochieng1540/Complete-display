@@ -53,7 +53,7 @@ jobs:
       run: |
         python manage.py test
 
-  build:
+  build-and-push:
     needs: test
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
@@ -61,6 +61,37 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+    
     - name: Build Docker images
       run: |
-         docker-compose.yml --build
+        docker build -t myproject-web -f Dockerfile .
+        docker build -t myproject-nginx -f nginx/Dockerfile ./nginx
+    
+    - name: Log in to Docker Hub
+      if: success()
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+    
+    - name: Push Docker images
+      if: success()
+      run: |
+        docker tag myproject-web ${{ secrets.DOCKERHUB_USERNAME }}/django-app:latest
+        docker tag myproject-nginx ${{ secrets.DOCKERHUB_USERNAME }}/django-nginx:latest
+        docker push ${{ secrets.DOCKERHUB_USERNAME }}/django-app:latest
+        docker push ${{ secrets.DOCKERHUB_USERNAME }}/django-nginx:latest
+
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: Deploy to production
+      run: |
+        echo "Deployment would happen here"
+        echo "Add your deployment commands like:"
+        echo "ssh user@server 'cd /app && docker-compose pull && docker-compose up -d'"
