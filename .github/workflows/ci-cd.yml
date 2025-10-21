@@ -34,12 +34,12 @@ jobs:
     
     - name: Install dependencies
       run: |
-        cd django_app
+        cd myapp
         pip install -r requirements.txt
     
     - name: Run migrations
       run: |
-        cd django_app
+        cd myapp
         python manage.py migrate
       env:
         POSTGRES_DB: mydatabase
@@ -51,7 +51,7 @@ jobs:
     
     - name: Run tests
       run: |
-        cd django_app
+        cd myapp
         python manage.py test
       env:
         POSTGRES_DB: mydatabase
