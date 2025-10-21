@@ -10,7 +10,7 @@ services:
       - POSTGRES_USER=myuser
       - POSTGRES_PASSWORD=mypassword
     ports:
-      - "5432:5432"
+      - "5433:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U myuser -d mydatabase"]
       interval: 10s
@@ -18,12 +18,12 @@ services:
       retries: 5
 
   web:
-    build: ./django_app
+    build: .  # Build from current directory (project root)
     command: >
       sh -c "python manage.py migrate &&
              python manage.py runserver 0.0.0.0:8000"
     volumes:
-      - ./django_app:/app
+      - .:/app  # Mount entire project
     ports:
       - "8000:8000"
     environment:
@@ -41,7 +41,7 @@ services:
   nginx:
     build: ./nginx
     ports:
-      - "80:80"
+      - "8080:80"
     depends_on:
       - web
     volumes:
